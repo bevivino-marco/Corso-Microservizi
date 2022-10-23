@@ -1,6 +1,5 @@
 package com.in28minutes.microservices.currencyexchangeservice;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,17 +12,25 @@ import java.math.BigDecimal;
 public class CurrencyExchangeController {
 
     @Autowired
-    private    Environment environment;
+    private CurrencyExchangeRepository repository;
     @Autowired
-    private  ExchangeValueRepository repository;
+    private Environment environment;
 
 
     @GetMapping("/currency-exchange/from/{from}/to/{to}")
-    public ExchangeValue retrieveExchangeValue(@PathVariable String from, @PathVariable String to){
-        //ExchangeValue exchangeValue = new ExchangeValue(1000L, from, to , BigDecimal.valueOf(65));
-        ExchangeValue exchangeValue =repository.findByFromAndTo(from,to);
-        exchangeValue.setPort(Integer.parseInt(environment.getProperty("local.server.port")));
-        return exchangeValue;
+    public CurrencyExchange retrieveExchangeValue(@PathVariable String from, @PathVariable String to){
+
+        //CurrencyExchange currencyExchange = new CurrencyExchange(1000L, from, to, BigDecimal.valueOf(50));
+        CurrencyExchange currencyExchange = repository.findByFromAndTo(from,to);
+        if (currencyExchange==null){
+            throw new RuntimeException("Enable to find date for :"+from+" and "+to+"");
+        }
+                String port = environment.getProperty("local.server.port");
+        currencyExchange.setEnvironment(port);
+
+        return currencyExchange;
 
     }
+
+
 }
